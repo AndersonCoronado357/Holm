@@ -1,0 +1,268 @@
+@import 'tailwindcss';
+
+/* Modo oscuro manual: clase .dark en <html> (la pone el control de tema). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Acento de la app: cian/turquesa (paleta del brief). */
+  --color-accent-50: #e9f9fc;
+  --color-accent-100: #c1eff6;
+  --color-accent-200: #99e4f0;
+  --color-accent-300: #71daea;
+  --color-accent-400: #49cfe4;
+  --color-accent-500: #21c2d9;
+  --color-accent-600: #1ba1b6;
+  --color-accent-700: #157e8e;
+  --color-accent-800: #0f5a66;
+  --color-accent-900: #09373e;
+  --color-accent-950: #031416;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Superficies semanticas: neutras, planas, sin degradados. */
+:root {
+  --surface: #ffffff;
+  --surface-2: #f6f7f8;
+  --surface-3: #eceef0;
+  --border: #e3e6e9;
+  --text: #1b1f23;
+  --text-soft: #5c656e;
+  --canvas: #f4f5f6;
+  --canvas-dots: #d9dde1;
+  /* Color por defecto de los conectores: tiene que verse sobre el lienzo. */
+  --conn: #7d8892;
+}
+
+.dark {
+  --surface: #15171a;
+  --surface-2: #1b1e22;
+  --surface-3: #24282d;
+  --border: #2b3036;
+  --text: #e8eaed;
+  --text-soft: #99a2ab;
+  --canvas: #101214;
+  --canvas-dots: #23272c;
+  --conn: #8b959f;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Selección de texto con el color del app (cian), no el azul del navegador. */
+::selection {
+  background: color-mix(in srgb, var(--color-accent-500) 40%, transparent);
+}
+::-moz-selection {
+  background: color-mix(in srgb, var(--color-accent-500) 40%, transparent);
+}
+
+/* Puertos de conexión: ocultos por defecto, se revelan al pasar el cursor por el
+   elemento (o cuando está seleccionado). Con `:hover` nativo — el onMouseEnter de
+   framer-motion no dispara de forma fiable. Igual que los handles del diagrama. */
+.holm-port {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.holm-el:hover .holm-port,
+.holm-el--sel .holm-port,
+.holm-el--linking .holm-port {
+  opacity: 1;
+}
+/* El punto crece al acercarle el cursor: así se ve cuál vas a agarrar. */
+.holm-port-dot {
+  transition: transform 0.1s ease;
+}
+.holm-port:hover .holm-port-dot {
+  transform: scale(1.5);
+}
+
+/* Isla: la etiqueta aparece al hacer hover como texto flotante (tooltip), sin
+   recuadro y sin deformar el contenedor. Cada `.isla-chip:hover` muestra SOLO su
+   propia `.isla-tip` (per-item por definición, :hover nativo, no `group`). */
+.isla-tip {
+  position: absolute;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  /* halo del color de fondo para legibilidad sin caja */
+  text-shadow: 0 0 3px var(--surface), 0 0 6px var(--surface), 0 0 10px var(--surface), 0 1px 2px var(--surface);
+  transition: opacity 0.15s ease;
+  z-index: 60;
+}
+.isla-chip:hover .isla-tip {
+  opacity: 1;
+}
+.isla-tip-left {
+  right: 100%;
+  margin-right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.isla-tip-below {
+  top: 100%;
+  margin-top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Scrollbar discreta */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Inputs: jamas un focus de color (regla global del proyecto) */
+input,
+textarea,
+select,
+button {
+  outline: none;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Utilidades de superficie reutilizables */
+@layer components {
+  .surface {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .surface-2 {
+    background: var(--surface-2);
+  }
+
+  /* Campo subrayado para formularios: borde neutro, focus neutro (sin color) */
+  .ufield {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--border);
+    padding: 0.55rem 0;
+    color: var(--text);
+    transition: border-color 0.15s ease;
+  }
+  .ufield::placeholder {
+    color: var(--text-soft);
+    opacity: 0.55;
+  }
+  .ufield:focus {
+    border-bottom-color: var(--text);
+  }
+
+  /* Campo relleno, SIN ningun borde. Focus = leve cambio de fondo. */
+  .afield {
+    width: 100%;
+    min-height: 2.9rem;
+    background: var(--surface-2);
+    border: 0;
+    border-radius: 0.85rem;
+    padding: 0.7rem 1rem;
+    color: var(--text);
+    transition: background 0.15s ease;
+  }
+  .afield::placeholder {
+    color: var(--text-soft);
+    opacity: 0.55;
+  }
+  .afield:focus {
+    background: var(--surface-3);
+  }
+
+  /* Items del lienzo: planos (sin sombra ni borde) y con un fondo distinto al de
+     las islas para que no se pierdan. La separación es solo por color. */
+  .card-body {
+    background: var(--surface-2);
+  }
+}
+
+/* Animaciones */
+@keyframes holmFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes holmFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes holmFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes holmWave {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animFadeUp {
+  opacity: 0;
+  animation: holmFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.animFadeIn {
+  animation: holmFadeIn 0.6s ease forwards;
+}
+.animFloat {
+  animation: holmFloat 7s ease-in-out infinite;
+}
+.animWave {
+  animation: holmWave 14s linear infinite;
+}
+
+/* Anima el pulso de los indicadores salvo reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
