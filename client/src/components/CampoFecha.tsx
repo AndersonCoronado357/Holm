@@ -37,8 +37,8 @@ export function CampoFecha({ value, onChange }: Props) {
   useLayoutEffect(() => {
     if (!abierto || !btnRef.current) return;
     const r = btnRef.current.getBoundingClientRect();
-    const ancho = 288;
-    const alto = 340;
+    const ancho = Math.min(320, window.innerWidth - 16);
+    const alto = 360;
     const abajo = r.bottom + 8 + alto < window.innerHeight;
     setPos({
       top: abajo ? r.bottom + 8 : Math.max(8, r.top - alto - 8),
@@ -48,15 +48,15 @@ export function CampoFecha({ value, onChange }: Props) {
 
   useEffect(() => {
     if (!abierto) return;
-    const fuera = (e: MouseEvent) => {
+    const fuera = (e: Event) => {
       if (popRef.current?.contains(e.target as Node) || btnRef.current?.contains(e.target as Node)) return;
       setAbierto(false);
     };
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && setAbierto(false);
-    document.addEventListener('mousedown', fuera);
+    document.addEventListener('pointerdown', fuera);
     document.addEventListener('keydown', esc);
     return () => {
-      document.removeEventListener('mousedown', fuera);
+      document.removeEventListener('pointerdown', fuera);
       document.removeEventListener('keydown', esc);
     };
   }, [abierto]);
@@ -93,7 +93,7 @@ export function CampoFecha({ value, onChange }: Props) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.98 }}
               transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed z-[200] w-72 rounded-2xl p-3"
+              className="fixed z-[200] w-[min(20rem,calc(100vw-1rem))] rounded-2xl p-3"
               style={{
                 top: pos.top,
                 left: pos.left,
@@ -150,11 +150,11 @@ export function CampoFecha({ value, onChange }: Props) {
                 })}
               </div>
 
-              <div className="mt-2 flex justify-between pt-1">
+              <div className="-mb-1 mt-1 flex justify-between">
                 <button
                   type="button"
                   onClick={() => setAbierto(false)}
-                  className="text-[12.5px] font-bold"
+                  className="flex h-10 items-center px-1 text-[12.5px] font-bold"
                   style={{ color: 'var(--text-soft)' }}
                 >
                   Cancelar
@@ -162,7 +162,7 @@ export function CampoFecha({ value, onChange }: Props) {
                 <button
                   type="button"
                   onClick={() => elegir(new Date())}
-                  className="text-[12.5px] font-bold hover:underline"
+                  className="flex h-10 items-center px-1 text-[12.5px] font-bold hover:underline"
                   style={{ color: 'var(--color-accent-500)' }}
                 >
                   Hoy
@@ -183,7 +183,7 @@ function BotonMes({ onClick, titulo, children }: { onClick: () => void; titulo: 
       type="button"
       onClick={onClick}
       title={titulo}
-      className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
+      className="tbtn flex items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
       style={{ color: 'var(--text-soft)' }}
     >
       {children}

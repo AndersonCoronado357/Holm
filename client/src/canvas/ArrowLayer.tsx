@@ -23,6 +23,7 @@ import {
   puertoEnPunto,
   trazar,
 } from './lineRouter';
+import { TACTIL } from './viewport';
 
 interface Props {
   arrows: CanvasElement[];
@@ -370,8 +371,8 @@ export function ArrowLayer({ arrows, nodeById, scale, selectedId, onSelect, patc
               return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, seg: i, eje: ejeDeTramo(a, b) };
             })
           : [];
-        const r = 5 / scale; // radio visible (constante en pantalla)
-        const grab = 13 / scale; // radio de agarre: generoso, para no tener que apuntar fino
+        const r = (TACTIL ? 7 : 5) / scale; // radio visible (constante en pantalla)
+        const grab = (TACTIL ? 20 : 13) / scale; // radio de agarre: generoso, para no tener que apuntar fino
         // Un solo tirador que cambia de color según si el tramo está ajustado a
         // mano; nada de dos marcas superpuestas donde sólo una responde (§8).
         const ajustado = (el.content.waypoints?.length ?? 0) > 0;
@@ -382,7 +383,7 @@ export function ArrowLayer({ arrows, nodeById, scale, selectedId, onSelect, patc
               d={d}
               fill="none"
               stroke="transparent"
-              strokeWidth={16}
+              strokeWidth={TACTIL ? 26 : 16}
               style={{ pointerEvents: 'stroke', cursor: el.locked ? 'default' : 'move' }}
               onPointerDown={(e) => onBodyDown(e, el)}
             />

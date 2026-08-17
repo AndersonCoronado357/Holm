@@ -246,11 +246,14 @@ export function ComponentsBubble({
       if (moved) onAdd(tool.type, e.clientX, e.clientY, { color: tool.color, content: tool.content });
       setDrag(null);
     };
+    const onCancel = () => setDrag(null);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
     return () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onCancel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drag?.tool.label]);
@@ -279,7 +282,9 @@ export function ComponentsBubble({
                 botones son de framer-motion y sus propios gestos se comen el
                 handler, así que el arrastre no llegaba a arrancar. */}
             {TOOLS.map((tool) => (
-              <div key={tool.label} onPointerDown={(e) => startDrag(tool, e)}>
+              // touchAction none: si no, el navegador se queda el gesto del dedo
+              // y manda `pointercancel` a mitad del arrastre.
+              <div key={tool.label} onPointerDown={(e) => startDrag(tool, e)} style={{ touchAction: 'none' }}>
                 <IslaButton side="left" Icon={tool.Icon} label={tool.label} onClick={() => {}} />
               </div>
             ))}

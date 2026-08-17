@@ -69,12 +69,12 @@ export function HabitsView() {
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--surface)' }}>
-      <header className="flex shrink-0 items-end justify-between px-6 pb-6 pt-24 md:px-10">
+      <header className="flex shrink-0 items-end justify-between gap-3 px-4 pb-4 pt-20 md:px-10 md:pb-6 md:pt-24">
         <div>
           <p className="text-sm capitalize" style={{ color: 'var(--text-soft)' }}>
             {dateLabel} · hoy
           </p>
-          <h1 className="mt-1 text-4xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl" style={{ color: 'var(--text)' }}>
             Hábitos
           </h1>
         </div>
@@ -86,7 +86,7 @@ export function HabitsView() {
         </button>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-auto px-6 pb-12 md:px-10">
+      <div className="safe-bottom scroll-area min-h-0 flex-1 px-4 md:px-10">
         {loaded && habits.length === 0 && <Empty onCreate={() => setEditing({ habit: null })} />}
 
         {loaded && habits.length > 0 && todays.length === 0 && (

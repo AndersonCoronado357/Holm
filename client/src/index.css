@@ -49,7 +49,13 @@
 html,
 body,
 #root {
-  height: 100%;
+  /* dvh y no vh: en el móvil la barra del navegador aparece y desaparece, y
+     con vh la app quedaba cortada por abajo. */
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  /* Corta el rebote elástico de la página al llegar al final del scroll. */
+  overscroll-behavior: none;
 }
 
 body {
@@ -58,11 +64,49 @@ body {
   background: var(--surface);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Al tocar un botón, nada de recuadro gris del navegador. `touch-action` se
+   queda en auto: ponerlo en manipulation impedía deslizar sobre listas con
+   botones dentro. */
+button,
+a,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Zonas con scroll: sin barra a la vista y sin arrastrar la página de detrás
+   al llegar al tope. */
+.scroll-area {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-area::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Márgenes seguros del móvil (notch, barra de gestos). */
+.safe-top {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+}
+.safe-bottom {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+/* Islas flotantes: se apartan del notch y de la barra de gestos. */
+.isla-top {
+  top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));
+}
+.isla-bottom {
+  bottom: max(1.25rem, calc(env(safe-area-inset-bottom) + 0.5rem));
 }
 
 /* Selección de texto con el color del app (cian), no el azul del navegador. */
@@ -80,11 +124,52 @@ body {
   opacity: 0;
   transition: opacity 0.12s ease;
 }
-.holm-el:hover .holm-port,
+/* Con ratón se revelan al pasar por encima. En una pantalla táctil no hay
+   «pasar por encima», así que ahí salen al seleccionar el elemento (y siempre
+   que se esté tendiendo una conexión). */
+@media (hover: hover) {
+  .holm-el:hover .holm-port {
+    opacity: 1;
+  }
+}
 .holm-el--sel .holm-port,
 .holm-el--linking .holm-port {
   opacity: 1;
 }
+/* Botón de la barra de opciones del elemento: 32 px con ratón, 40 con el dedo. */
+.tbtn {
+  height: 2rem;
+  width: 2rem;
+  /* Sin esto el flex los estruja hasta 16 px en vez de dejar que la barra
+     se deslice. */
+  flex-shrink: 0;
+}
+@media (hover: none) {
+  .tbtn {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+}
+
+/* Fila de una lista compacta (ruedas de hora, páginas): con el dedo tiene que
+   ser una fila entera, con el ratón basta menos. */
+.op-tactil {
+  min-height: 2rem;
+}
+@media (hover: none) {
+  .op-tactil {
+    min-height: 2.75rem;
+  }
+}
+
+/* Acciones que sólo se ven al pasar el cursor. Sin ratón no hay forma de
+   sacarlas, así que en táctil están siempre a la vista. */
+@media (hover: none) {
+  .solo-hover {
+    opacity: 1;
+  }
+}
+
 /* El punto crece al acercarle el cursor: así se ve cuál vas a agarrar. */
 .holm-port-dot {
   transition: transform 0.1s ease;

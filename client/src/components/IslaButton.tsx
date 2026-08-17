@@ -23,7 +23,8 @@ export function IslaButton({ Icon, label, active, danger, side = 'right', onClic
       onPointerDown={onPointerDown}
       aria-label={label}
       className={cx(
-        'isla-chip relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors',
+        // 44 px en móvil: por debajo de eso el dedo falla más de lo que acierta.
+        'isla-chip relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors md:h-10 md:w-10',
         active
           ? 'bg-accent-500 text-white'
           : danger

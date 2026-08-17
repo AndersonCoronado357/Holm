@@ -57,15 +57,15 @@ export function CampoHora({ value, onChange, disabled = false, paso = 5 }: Props
 
   useEffect(() => {
     if (!abierto) return;
-    const fuera = (e: MouseEvent) => {
+    const fuera = (e: Event) => {
       if (popRef.current?.contains(e.target as Node) || btnRef.current?.contains(e.target as Node)) return;
       setAbierto(false);
     };
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && setAbierto(false);
-    document.addEventListener('mousedown', fuera);
+    document.addEventListener('pointerdown', fuera);
     document.addEventListener('keydown', esc);
     return () => {
-      document.removeEventListener('mousedown', fuera);
+      document.removeEventListener('pointerdown', fuera);
       document.removeEventListener('keydown', esc);
     };
   }, [abierto]);
@@ -129,7 +129,7 @@ export function CampoHora({ value, onChange, disabled = false, paso = 5 }: Props
               <button
                 type="button"
                 onClick={() => setAbierto(false)}
-                className="mt-2 w-full rounded-lg py-1.5 text-[12.5px] font-bold"
+                className="mt-2 h-11 w-full rounded-lg text-[12.5px] font-bold"
                 style={{ background: 'var(--surface-2)', color: 'var(--text)' }}
               >
                 Listo
@@ -157,7 +157,7 @@ function Rueda({
   onPick: (v: number) => void;
 }) {
   return (
-    <div ref={colRef} className="h-44 overflow-y-auto rounded-xl" style={{ background: 'var(--surface)' }}>
+    <div ref={colRef} className="scroll-area h-44 rounded-xl" style={{ background: 'var(--surface)' }}>
       <div className="flex flex-col gap-0.5 p-1">
         {items.map((v) => {
           const es = v === activo;
@@ -168,7 +168,7 @@ function Rueda({
               {...{ [`data-${attr}`]: v }}
               onClick={() => onPick(v)}
               className={cx(
-                'shrink-0 rounded-lg py-1.5 text-center text-[14px] font-semibold tabular-nums transition-colors',
+                'op-tactil shrink-0 rounded-lg py-1.5 text-center text-[14px] font-semibold tabular-nums transition-colors',
                 !es && 'hover:bg-[var(--surface-3)]',
               )}
               style={{ background: es ? 'var(--color-accent-500)' : undefined, color: es ? '#fff' : 'var(--text)' }}

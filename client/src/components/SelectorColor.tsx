@@ -138,25 +138,31 @@ export function SelectorColor({ value, onChange }: { value: string; onChange: (v
         />
       </div>
 
-      {/* Barra de tono */}
+      {/* Barra de tono. La barra se ve de 10 px (como en Hibi) pero el agarre
+          va en el envoltorio, que mide 30: con el dedo, 10 px no se acierta.
+          El ancho es el mismo en los dos, así que la cuenta de la X no cambia. */}
       <div
-        ref={hueRef}
         onPointerDown={(e) => {
           (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
           enTono(e);
         }}
         onPointerMove={(e) => e.buttons === 1 && enTono(e)}
-        className="relative h-2.5 w-full shrink-0 cursor-pointer select-none rounded-full"
-        style={{
-          background:
-            'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)',
-          touchAction: 'none',
-        }}
+        className="-my-2.5 flex w-full shrink-0 cursor-pointer select-none items-center py-2.5"
+        style={{ touchAction: 'none' }}
       >
-        <span
-          className="pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
-          style={{ left: `${(hsv.h / 360) * 100}%`, background: tono }}
-        />
+        <div
+          ref={hueRef}
+          className="relative h-2.5 w-full rounded-full"
+          style={{
+            background:
+              'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)',
+          }}
+        >
+          <span
+            className="pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+            style={{ left: `${(hsv.h / 360) * 100}%`, background: tono }}
+          />
+        </div>
       </div>
 
       {/* HEX */}
@@ -170,7 +176,7 @@ export function SelectorColor({ value, onChange }: { value: string; onChange: (v
             value={value.toUpperCase()}
             maxLength={7}
             onChange={(e) => ponerHex(e.target.value)}
-            className="w-0 flex-1 bg-transparent text-[13px] font-bold uppercase tracking-wide tabular-nums outline-none"
+            className="h-full w-0 flex-1 bg-transparent text-[13px] font-bold uppercase tracking-wide tabular-nums outline-none"
             style={{ color: 'var(--text)' }}
           />
         </div>

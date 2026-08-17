@@ -396,8 +396,11 @@ function BrandHalf({ title, tagline }: { title: string; tagline: string }) {
 
 function FormHalf({ children }: { children: ReactNode }) {
   return (
-    <main className="relative z-10 flex w-full items-center justify-center overflow-auto px-8 py-10 md:w-1/2">
-      <div className="w-full max-w-sm text-center">
+    // `my-auto` en el hijo y no `items-center` en el padre: al centrar con
+    // flex, si el formulario es más alto que la pantalla el principio queda
+    // recortado y no se puede subir con el scroll.
+    <main className="scroll-area safe-top safe-bottom relative z-10 flex w-full justify-center px-5 md:w-1/2 md:px-8 md:py-10">
+      <div className="my-auto w-full max-w-sm text-center">
         <div className="mb-7 flex justify-center md:hidden">
           <IslandBadge size={72} />
         </div>

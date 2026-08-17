@@ -76,7 +76,7 @@ function TBtn({
     <button
       onClick={onClick}
       title={title}
-      className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
+      className="tbtn flex items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
       style={{ color: 'var(--text-soft)' }}
     >
       {children}
@@ -102,15 +102,18 @@ export function ElementToolbar({
   const arrowType: ArrowType = el.content.arrowType ?? 'arrow';
 
   return (
-    <div
-      className="relative flex items-center gap-0.5 rounded-xl p-1"
-      style={{ background: 'var(--surface)' }}
-      onPointerDown={(e) => e.stopPropagation()}
-    >
+    <div className="relative" onPointerDown={(e) => e.stopPropagation()}>
+      {/* La fila de botones es la que se desliza: en un móvil la barra de una
+          flecha (15 botones) no cabe de lado a lado. El selector de color va
+          FUERA de ella, si no el `overflow` lo recortaría. */}
+      <div
+        className="scroll-area flex max-w-[calc(100vw-1rem)] items-center gap-0.5 rounded-xl p-1"
+        style={{ background: 'var(--surface)' }}
+      >
       <button
         onClick={() => setPicker((v) => !v)}
         title="Color"
-        className="flex h-8 items-center gap-1.5 rounded-lg px-2 hover:bg-[var(--surface-3)]"
+        className="tbtn flex w-auto items-center gap-1.5 rounded-lg px-2 hover:bg-[var(--surface-3)]"
         style={{ color: 'var(--text-soft)' }}
       >
         <IconPalette width={17} height={17} />
@@ -119,13 +122,13 @@ export function ElementToolbar({
 
       {el.type === 'shape' && (
         <>
-          <div className="mx-0.5 h-5 w-px" style={{ background: 'var(--border)' }} />
+          <div className="mx-0.5 h-5 w-px shrink-0" style={{ background: 'var(--border)' }} />
           {(['rect', 'ellipse', 'triangle'] as const).map((s) => (
             <button
               key={s}
               onClick={() => onShape(s)}
               title={s}
-              className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
+              className="tbtn flex items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
               style={{ color: el.content.shape === s ? 'var(--text)' : 'var(--text-soft)' }}
             >
               {s === 'rect' && <IconShape width={16} height={16} />}
@@ -147,13 +150,13 @@ export function ElementToolbar({
 
       {el.type === 'arrow' && (
         <>
-          <div className="mx-0.5 h-5 w-px" style={{ background: 'var(--border)' }} />
+          <div className="mx-0.5 h-5 w-px shrink-0" style={{ background: 'var(--border)' }} />
           {(['straight', 'ortho', 'curved'] as const).map((r) => (
             <button
               key={r}
               onClick={() => onRouting(r)}
               title={r === 'straight' ? 'Recta' : r === 'ortho' ? 'Ortogonal' : 'Curva'}
-              className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
+              className="tbtn flex items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
               style={{ color: routing === r ? 'var(--text)' : 'var(--text-soft)' }}
             >
               <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
@@ -161,19 +164,19 @@ export function ElementToolbar({
               </svg>
             </button>
           ))}
-          <div className="mx-0.5 h-5 w-px" style={{ background: 'var(--border)' }} />
+          <div className="mx-0.5 h-5 w-px shrink-0" style={{ background: 'var(--border)' }} />
           {ARROW_TYPES.map(({ type, title }) => (
             <button
               key={type}
               onClick={() => onArrowType(type)}
               title={title}
-              className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
+              className="tbtn flex items-center justify-center rounded-lg hover:bg-[var(--surface-3)]"
               style={{ color: arrowType === type ? 'var(--text)' : 'var(--text-soft)' }}
             >
               <ArrowTypeIcon type={type} />
             </button>
           ))}
-          <div className="mx-0.5 h-5 w-px" style={{ background: 'var(--border)' }} />
+          <div className="mx-0.5 h-5 w-px shrink-0" style={{ background: 'var(--border)' }} />
           {/* Red de seguridad: rehace la línea limpia (mejor lado, sin ajustes).
               Sólo a petición; el automático nunca pisa lo hecho a mano (§3). */}
           <TBtn onClick={onStraighten} title="Reordenar la línea">
@@ -185,7 +188,7 @@ export function ElementToolbar({
         </>
       )}
 
-      <div className="mx-0.5 h-5 w-px" style={{ background: 'var(--border)' }} />
+      <div className="mx-0.5 h-5 w-px shrink-0" style={{ background: 'var(--border)' }} />
       <TBtn onClick={() => onZ('front')} title="Traer al frente">
         <IconBringFront width={17} height={17} />
       </TBtn>
@@ -198,17 +201,18 @@ export function ElementToolbar({
       <TBtn onClick={onDuplicate} title="Duplicar">
         <IconCopy width={17} height={17} />
       </TBtn>
-      <div className="mx-0.5 h-5 w-px" style={{ background: 'var(--border)' }} />
+      <div className="mx-0.5 h-5 w-px shrink-0" style={{ background: 'var(--border)' }} />
       <button
         onClick={onDelete}
         title="Eliminar"
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10"
+        className="tbtn flex items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10"
       >
         <IconTrash width={17} height={17} />
       </button>
+      </div>
 
       {picker && (
-        <div className="absolute left-0 top-11">
+        <div className="absolute left-0 top-full mt-1.5">
           <ColorPicker value={el.color} onChange={(c) => onColor(c)} onClose={() => setPicker(false)} />
         </div>
       )}

@@ -48,12 +48,12 @@ export function HomeView() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease }}
-        className="shrink-0 px-6 pb-5 pt-24 md:px-10"
+        className="shrink-0 px-4 pb-4 pt-20 md:px-10 md:pb-5 md:pt-24"
       >
         <p className="text-sm capitalize" style={{ color: 'var(--text-soft)' }}>
           {dateLabel}
         </p>
-        <h1 className="mt-1 text-4xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight md:text-4xl" style={{ color: 'var(--text)' }}>
           {firstName ? `Hola, ${firstName}` : 'Tu día de un vistazo'}
         </h1>
         <p className="mt-2 max-w-2xl text-lg" style={{ color: 'var(--text-soft)' }}>
@@ -61,7 +61,7 @@ export function HomeView() {
         </p>
       </motion.header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto px-6 md:grid-cols-2 md:grid-rows-2 md:overflow-hidden md:px-10">
+      <div className="scroll-area grid min-h-0 flex-1 grid-cols-1 gap-3 px-4 md:grid-cols-2 md:grid-rows-2 md:gap-4 md:overflow-hidden md:px-10">
         <Card i={0} title="Hábitos de hoy" Icon={IconHabits} count={summary?.habitsToday.length}>
           {summary && summary.habitsToday.length === 0 && <Muted>Hoy no toca ningún hábito.</Muted>}
           <div className="space-y-2.5">
@@ -101,7 +101,7 @@ export function HomeView() {
       </div>
 
       {/* resumen numérico abajo */}
-      <div className="grid shrink-0 grid-cols-2 gap-3 px-6 pb-8 pt-4 md:grid-cols-4 md:gap-4 md:px-10">
+      <div className="safe-bottom grid shrink-0 grid-cols-2 gap-3 px-4 pt-3 md:grid-cols-4 md:gap-4 md:px-10 md:pt-4">
         {stats.map((s, i) => (
           <motion.div
             key={s.label}

@@ -12,6 +12,10 @@ export interface Viewport {
 export const MIN_SCALE = 0.2;
 export const MAX_SCALE = 3;
 
+// Pantalla táctil: el dedo tapa ~9 mm, así que las manijas y los puertos del
+// lienzo se agrandan. Se mide una vez: un dispositivo no cambia de puntero.
+export const TACTIL = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
+
 // Pantalla (relativa al canvas) -> mundo
 export function screenToWorld(sx: number, sy: number, vp: Viewport): Point {
   return { x: (sx - vp.x) / vp.scale, y: (sy - vp.y) / vp.scale };

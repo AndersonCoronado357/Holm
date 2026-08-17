@@ -43,11 +43,11 @@ export function PagesBubble({ pages, activeId, onSelect, onAdd, onRename, onDele
               <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-soft)' }}>
                 Páginas
               </span>
-              <button onClick={() => setOpen(false)} style={{ color: 'var(--text-soft)' }}>
+              <button onClick={() => setOpen(false)} className="-mr-1.5 flex h-9 w-9 items-center justify-center rounded-lg" style={{ color: 'var(--text-soft)' }}>
                 <IconClose width={14} height={14} />
               </button>
             </div>
-            <div className="max-h-[50vh] space-y-0.5 overflow-auto">
+            <div className="scroll-area max-h-[50vh] space-y-0.5">
               {pages.map((p, i) => {
                 const isActive = p.id === activeId;
                 return (
@@ -57,7 +57,7 @@ export function PagesBubble({ pages, activeId, onSelect, onAdd, onRename, onDele
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.02 + i * 0.015, duration: 0.14, ease }}
                     className={cx(
-                      'group flex items-center gap-1 rounded-lg px-2.5 py-2 text-sm transition-colors',
+                      'op-tactil group flex items-center gap-1 rounded-lg px-2.5 py-2 text-sm transition-colors',
                       isActive ? 'bg-accent-500 text-white' : 'hover:bg-[var(--surface-3)]',
                     )}
                     style={isActive ? undefined : { color: 'var(--text-soft)' }}
@@ -93,7 +93,10 @@ export function PagesBubble({ pages, activeId, onSelect, onAdd, onRename, onDele
                         onClick={() => {
                           if (confirm(`¿Eliminar "${p.name}" y su contenido?`)) onDelete(p.id);
                         }}
-                        className={cx('opacity-0 transition group-hover:opacity-100', isActive ? 'text-white/80' : 'hover:text-red-500')}
+                        className={cx(
+                          'solo-hover flex h-8 w-8 shrink-0 items-center justify-center rounded-lg opacity-0 transition group-hover:opacity-100',
+                          isActive ? 'text-white/80' : 'hover:text-red-500',
+                        )}
                       >
                         <IconClose width={13} height={13} />
                       </button>
@@ -105,7 +108,7 @@ export function PagesBubble({ pages, activeId, onSelect, onAdd, onRename, onDele
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={onAdd}
-              className="mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors hover:bg-[var(--surface-3)]"
+              className="op-tactil mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors hover:bg-[var(--surface-3)]"
               style={{ color: 'var(--text-soft)' }}
             >
               <IconPlus width={16} height={16} /> Nueva página

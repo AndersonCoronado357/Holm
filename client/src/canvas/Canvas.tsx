@@ -6,7 +6,7 @@ import { CanvasElementView } from './CanvasElementView';
 import { ArrowLayer } from './ArrowLayer';
 import { ComponentsBubble, type Preset } from './ComponentsBubble';
 import { ElementToolbar } from './ElementToolbar';
-import { screenToWorld, zoomAt, newElement, type Viewport } from './viewport';
+import { screenToWorld, zoomAt, newElement, TACTIL, type Viewport } from './viewport';
 import { edgePoint, portDirection, portPoint } from './connectors';
 import { hitTarget } from './hit';
 import { elegirLados, engancharElemento, puertoDeLado, puertoEnPunto, puntuar, trazarConCoste } from './lineRouter';
@@ -442,7 +442,7 @@ export function Canvas({ pageId, view }: { pageId: string; view: CanvasView }) {
     const r = rect();
     const ancho = r?.width ?? window.innerWidth;
     const HUECO = 14;
-    const ALTO = 44;
+    const ALTO = TACTIL ? 54 : 44;
     const sxc = vp.x + ((x0 + x1) / 2) * vp.scale;
     const syTop = vp.y + y0 * vp.scale;
     const syBot = vp.y + y1 * vp.scale;
@@ -450,8 +450,10 @@ export function Canvas({ pageId, view }: { pageId: string; view: CanvasView }) {
     // la barra pasa debajo del elemento.
     const debajo = syTop - HUECO - ALTO < 84;
     const top = debajo ? syBot + HUECO : syTop - HUECO;
-    // Sin salirse por los lados.
-    const left = Math.max(190, Math.min(sxc, ancho - 190));
+    // Sin salirse por los lados. En un móvil no caben 190 px de margen a cada
+    // lado, así que el tope se ajusta al ancho real y la barra queda centrada.
+    const MEDIO = Math.min(190, ancho / 2 - 8);
+    const left = Math.max(MEDIO, Math.min(sxc, ancho - MEDIO));
     return { left, top, debajo };
   })();
 

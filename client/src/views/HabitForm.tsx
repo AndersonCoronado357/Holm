@@ -45,9 +45,9 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
   };
 
   return (
-    <div className="absolute inset-0 overflow-auto" style={{ background: 'var(--surface)' }}>
-      <div className="mx-auto flex min-h-full max-w-5xl flex-col px-6 pb-28 pt-24 md:px-10">
-        <button onClick={onCancel} className="mb-8 self-start text-sm hover:underline" style={{ color: 'var(--text-soft)' }}>
+    <div className="scroll-area absolute inset-0" style={{ background: 'var(--surface)' }}>
+      <div className="safe-bottom mx-auto flex min-h-full max-w-5xl flex-col px-4 pb-16 pt-20 md:px-10 md:pt-24">
+        <button onClick={onCancel} className="mb-5 -ml-2 flex h-11 items-center self-start px-2 text-sm hover:underline md:mb-8" style={{ color: 'var(--text-soft)' }}>
           ← Volver a hábitos
         </button>
 
@@ -60,11 +60,11 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Beber agua, leer 20 min, salir a correr..."
-          className="mt-2 w-full border-0 bg-transparent text-3xl font-bold leading-tight outline-none placeholder:opacity-30 md:text-4xl"
+          className="mt-2 h-12 w-full border-0 bg-transparent text-3xl font-bold leading-tight outline-none placeholder:opacity-30 md:text-4xl"
           style={{ color: 'var(--text)' }}
         />
 
-        <div className="mt-14 grid grid-cols-1 gap-14 lg:grid-cols-2">
+        <div className="mt-9 grid grid-cols-1 gap-10 md:mt-14 md:gap-14 lg:grid-cols-2">
           {/* Como se marca */}
           <section>
             <SectionLabel>Cómo lo marcas</SectionLabel>
@@ -73,7 +73,7 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
               <BigChoice active={mode === 'quantity'} onClick={() => setMode('quantity')} title="Cantidad" desc="Cuentas hacia una meta" />
             </div>
             {mode === 'quantity' && (
-              <div className="mt-5 flex items-end gap-4">
+              <div className="mt-5 flex flex-wrap items-end gap-4">
                 <div>
                   <span className="mb-1 block text-xs" style={{ color: 'var(--text-soft)' }}>
                     Meta diaria
@@ -109,7 +109,7 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
               <BigChoice active={freqType === 'timesPerWeek'} onClick={() => setFreqType('timesPerWeek')} title="Por semana" desc="X veces" />
             </div>
             {freqType === 'weekdays' && (
-              <div className="mt-5 flex gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 {WEEK_ORDER.map((dd) => {
                   const on = weekdays.includes(dd);
                   return (
@@ -146,7 +146,7 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
           {/* Color */}
           <section className="lg:col-span-2">
             <SectionLabel>Color</SectionLabel>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {COLORS.map((c) => (
                 <button
                   key={c}
@@ -155,14 +155,15 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
                   style={{ background: c, ['--tw-ring-color' as any]: 'var(--text)', ['--tw-ring-offset-color' as any]: 'var(--surface)' }}
                 />
               ))}
-              <label className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl" style={{ background: 'var(--surface-3)' }}>
-                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-6 w-6 cursor-pointer border-0 bg-transparent p-0" />
+              <label className="relative flex h-11 w-11 cursor-pointer items-center justify-center overflow-hidden rounded-2xl" style={{ background: 'var(--surface-3)' }}>
+                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-11 w-11 cursor-pointer border-0 bg-transparent p-0 opacity-0" />
+                <span className="pointer-events-none absolute h-6 w-6 rounded-full" style={{ background: color, boxShadow: 'inset 0 0 0 2px var(--surface)' }} />
               </label>
             </div>
           </section>
         </div>
 
-        <div className="mt-16 flex items-center gap-4">
+        <div className="mt-10 flex items-center gap-4 md:mt-16">
           <button
             onClick={save}
             disabled={!name.trim()}
@@ -170,7 +171,7 @@ export function HabitForm({ initial, onCancel, onSave, onDelete }: Props) {
           >
             {initial ? 'Guardar cambios' : 'Crear hábito'}
           </button>
-          <button onClick={onCancel} className="text-sm font-medium hover:underline" style={{ color: 'var(--text-soft)' }}>
+          <button onClick={onCancel} className="flex h-11 items-center px-2 text-sm font-medium hover:underline" style={{ color: 'var(--text-soft)' }}>
             Cancelar
           </button>
           {onDelete && (

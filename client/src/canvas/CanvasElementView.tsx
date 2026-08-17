@@ -4,6 +4,7 @@ import type { CanvasElement, ElementContent, ListItem, ModelField, Point } from 
 import { cx, uid } from '../lib/util';
 import { idealText } from '../lib/color';
 import { handlePorts } from './connectors';
+import { TACTIL } from './viewport';
 import { IconCheck, IconPlus, IconClose, IconImage, IconDatabase } from '../components/icons';
 
 const MIN_W = 80;
@@ -374,29 +375,38 @@ function ResizeHandle({
   onMove: (e: RPointerEvent) => void;
   onUp: () => void;
 }) {
-  const s = 8 * inv;
+  const s = (TACTIL ? 11 : 8) * inv;
+  const hit = (TACTIL ? 36 : 26) * inv; // zona de agarre: con el dedo, 8 px es inalcanzable
   return (
     <div
       onPointerDown={onDown}
       onPointerMove={onMove}
       onPointerUp={onUp}
-      className="absolute"
+      className="absolute flex items-center justify-center"
       style={{
         left: x,
         top: y,
-        width: s,
-        height: s,
-        // Cuadrado (y no círculo) para distinguirlo de un punto de conexión.
-        borderRadius: 1.5 * inv,
+        width: hit,
+        height: hit,
         transform: 'translate(-50%, -50%)',
         zIndex: 22,
         cursor,
-        background: 'var(--surface)',
-        border: `${1.5 * inv}px solid var(--color-accent-500)`,
         pointerEvents: 'auto',
       }}
       title="Redimensionar"
-    />
+    >
+      <span
+        className="block"
+        style={{
+          width: s,
+          height: s,
+          // Cuadrado (y no círculo) para distinguirlo de un punto de conexión.
+          borderRadius: 1.5 * inv,
+          background: 'var(--surface)',
+          border: `${1.5 * inv}px solid var(--color-accent-500)`,
+        }}
+      />
+    </div>
   );
 }
 
@@ -415,8 +425,8 @@ function ConnectHandle({
   port: string;
   onDown: (e: RPointerEvent) => void;
 }) {
-  const hit = 22 * inv; // zona de agarre generosa (invisible)
-  const dot = 9 * inv; // punto visible
+  const hit = (TACTIL ? 34 : 22) * inv; // zona de agarre generosa (invisible)
+  const dot = (TACTIL ? 12 : 9) * inv; // punto visible
   return (
     <div
       data-port={port}
@@ -570,7 +580,7 @@ function ListBody({ el, setContent }: { el: CanvasElement; setContent: (c: Eleme
             />
             <button
               onClick={() => removeItem(it.id)}
-              className="opacity-0 group-hover:opacity-100"
+              className="solo-hover flex h-8 w-8 shrink-0 items-center justify-center opacity-0 group-hover:opacity-100"
               style={{ color: 'var(--text-soft)' }}
             >
               <IconClose width={13} height={13} />
@@ -641,7 +651,7 @@ function ModelBody({ el, setContent }: { el: CanvasElement; setContent: (c: Elem
               className="w-16 shrink-0 border-0 bg-transparent text-right text-xs outline-none"
               style={{ color: 'var(--text-soft)' }}
             />
-            <button onClick={() => removeField(f.id)} className="opacity-0 group-hover:opacity-100" style={{ color: 'var(--text-soft)' }}>
+            <button onClick={() => removeField(f.id)} className="solo-hover flex h-8 w-8 shrink-0 items-center justify-center opacity-0 group-hover:opacity-100" style={{ color: 'var(--text-soft)' }}>
               <IconClose width={12} height={12} />
             </button>
           </div>

@@ -36,7 +36,7 @@ export function NavBubble({ active, onSelect }: { active: ViewKey; onSelect: (v:
   return (
     // El contenedor ocupa el ancho para centrar, pero NO recibe el puntero: así
     // el hover no se activa sobre el pizarrón, solo sobre el nav en sí.
-    <div className="pointer-events-none fixed inset-x-0 top-5 z-40 flex justify-center">
+    <div className="isla-top pointer-events-none fixed inset-x-0 z-40 flex justify-center">
       <div {...hoverProps} className="pointer-events-auto select-none">
         {/* Una sola pieza que se ESTIRA: la bolita no desaparece para que
             aparezca otra cosa, es la misma isla que crece. Los iconos entran
@@ -46,8 +46,13 @@ export function NavBubble({ active, onSelect }: { active: ViewKey; onSelect: (v:
           transition={spring}
           onClick={() => !open && setOpen(true)}
           title={open ? undefined : 'Menú'}
-          className={cx('flex flex-row items-center rounded-full', open ? 'gap-0.5 p-1.5' : 'cursor-pointer p-0')}
-          style={{ background: 'var(--surface)' }}
+          className={cx(
+            'flex flex-row items-center rounded-full',
+            // En un móvil los ocho accesos no caben de lado a lado: la isla se
+            // queda dentro de la pantalla y se desliza con el dedo.
+            open ? 'scroll-area max-w-[calc(100vw-1.5rem)] gap-0.5 p-1.5' : 'cursor-pointer p-0',
+          )}
+          style={{ background: 'var(--surface)', overflowY: 'hidden' }}
         >
           <motion.span
             layout

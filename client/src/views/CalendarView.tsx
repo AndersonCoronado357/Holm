@@ -136,17 +136,21 @@ export function CalendarView() {
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--surface)' }}>
-      <header className="flex shrink-0 flex-wrap items-end justify-between gap-4 px-6 pb-5 pt-24 md:px-10">
-        <div>
-          <p className="text-sm" style={{ color: 'var(--text-soft)' }}>
+      <header className="flex shrink-0 flex-wrap items-end justify-between gap-3 px-4 pb-4 pt-20 md:gap-4 md:px-10 md:pb-5 md:pt-24">
+        <div className="min-w-0">
+          <p className="text-[13px] md:text-sm" style={{ color: 'var(--text-soft)' }}>
             {events.length === 0 ? 'Sin eventos todavía' : `${events.length} evento${events.length === 1 ? '' : 's'}`}
           </p>
-          <h1 className="mt-1 text-4xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>
+          <h1
+            className="mt-0.5 truncate text-2xl font-bold tracking-tight md:mt-1 md:text-4xl"
+            style={{ color: 'var(--text)' }}
+          >
             {headerLabel}
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Escritorio: barra completa con «Hoy» aparte */}
+        <div className="hidden flex-wrap items-center gap-2 md:flex">
           <div className="flex items-center gap-1">
             <IconBtn onClick={prev} title="Anterior">
               <IconChevronLeft width={17} height={17} />
@@ -181,7 +185,7 @@ export function CalendarView() {
                 }
               >
                 <v.Icon width={15} height={15} />
-                <span className="hidden sm:inline">{v.label}</span>
+                <span>{v.label}</span>
               </button>
             ))}
           </div>
@@ -193,9 +197,57 @@ export function CalendarView() {
             <IconPlus width={17} height={17} /> Evento
           </button>
         </div>
+
+        {/* Móvil: una sola fila que cabe en 375 px, con todo del tamaño del dedo.
+            El nombre del periodo hace de botón «hoy» para no gastar un hueco. */}
+        <div className="flex w-full items-center gap-1.5 md:hidden">
+          <IconBtn onClick={prev} title="Anterior">
+            <IconChevronLeft width={18} height={18} />
+          </IconBtn>
+          <button
+            onClick={() => {
+              const now = new Date();
+              setCursor(now);
+              setSelected(now);
+            }}
+            className="h-11 min-w-0 flex-1 truncate rounded-xl px-2 text-[13px] font-bold capitalize"
+            style={{ background: 'var(--surface-2)', color: 'var(--text)' }}
+          >
+            Hoy
+          </button>
+          <IconBtn onClick={next} title="Siguiente">
+            <IconChevronRight width={18} height={18} />
+          </IconBtn>
+          <button
+            onClick={() => setEditing({ event: null, date: selected })}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-500 text-white"
+            aria-label="Nuevo evento"
+          >
+            <IconPlus width={19} height={19} />
+          </button>
+        </div>
+
+        {/* Móvil: las cuatro vistas, en iconos grandes y en su propia fila */}
+        <div className="flex w-full items-center gap-1 rounded-2xl p-1 md:hidden" style={{ background: 'var(--surface-2)' }}>
+          {VIEWS.map((v) => (
+            <button
+              key={v.value}
+              onClick={() => setView(v.value)}
+              aria-label={v.label}
+              className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl text-[13px] font-semibold transition-colors"
+              style={
+                view === v.value ? { background: 'var(--color-accent-500)', color: '#fff' } : { color: 'var(--text-soft)' }
+              }
+            >
+              <v.Icon width={16} height={16} />
+              {v.label}
+            </button>
+          ))}
+        </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 gap-3 px-6 pb-8 md:px-10">
+      {/* En móvil se apila: la rejilla arriba y los eventos del día debajo. */}
+      <div className="safe-bottom flex min-h-0 flex-1 flex-col gap-3 px-3 pb-3 md:flex-row md:px-10 md:pb-8">
         <AnimatePresence mode="wait">
           <motion.div
             key={view + key(cursor)}
@@ -240,24 +292,26 @@ export function CalendarView() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Panel del día seleccionado (solo en vista mes, pantallas anchas) */}
+        {/* Los eventos del día: columna a la derecha en pantalla ancha, y en
+            móvil una sección debajo de la rejilla, que si no tocar un día no
+            enseña nada. */}
         {view === 'month' && (
           <div
-            className="hidden w-[300px] shrink-0 flex-col overflow-hidden rounded-2xl lg:flex"
+            className="flex max-h-[38vh] shrink-0 flex-col overflow-hidden rounded-2xl md:max-h-none md:w-[300px]"
             style={{ background: 'var(--surface-2)' }}
           >
-            <header className="shrink-0 px-5 pb-3 pt-5">
+            <header className="flex shrink-0 items-baseline gap-2 px-4 pb-2 pt-3 md:block md:px-5 md:pb-3 md:pt-5">
               <p className="text-sm capitalize" style={{ color: 'var(--text-soft)' }}>
                 {DAY_SHORT[selected.getDay()]}
               </p>
-              <h3 className="mt-0.5 text-2xl font-bold" style={{ color: 'var(--text)' }}>
+              <h3 className="text-xl font-bold md:mt-0.5 md:text-2xl" style={{ color: 'var(--text)' }}>
                 {selected.getDate()}{' '}
                 <span className="text-base font-semibold" style={{ color: 'var(--text-soft)' }}>
                   {MONTHS_SHORT[selected.getMonth()]}
                 </span>
               </h3>
             </header>
-            <div className="min-h-0 flex-1 overflow-auto px-5 pb-5">
+            <div className="scroll-area min-h-0 flex-1 px-4 pb-4 md:px-5 md:pb-5">
               {eventsOn(selected).length === 0 ? (
                 <p className="py-8 text-center text-sm" style={{ color: 'var(--text-soft)' }}>
                   Nada para este día.
@@ -355,7 +409,16 @@ function MonthGrid({
               >
                 {d.getDate()}
               </span>
-              <div className="flex min-h-0 flex-col gap-1 overflow-hidden">
+              {/* Móvil: sólo puntos de color. Una píldora con texto en una celda
+                  de 39 px no se lee; el detalle se ve al tocar el día. */}
+              <div className="flex flex-wrap items-center justify-center gap-1 md:hidden">
+                {items.slice(0, 4).map((e) => (
+                  <span key={e.id} className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: e.color }} />
+                ))}
+              </div>
+
+              {/* Escritorio: píldoras con título y hora */}
+              <div className="hidden min-h-0 flex-col gap-1 overflow-hidden md:flex">
                 {items.slice(0, 2).map((e) => (
                   <span
                     key={e.id}

@@ -56,7 +56,7 @@ export function EventForm({ initial, date, onCancel, onSave, onDelete }: Props) 
 
   return (
     // Ocupa el módulo entero: sin scroll de página, el formulario reparte el alto.
-    <section className="absolute inset-0 flex flex-col gap-4 overflow-hidden px-4 pb-5 pt-20 md:px-7">
+    <section className="safe-bottom absolute inset-0 flex flex-col gap-4 overflow-hidden px-4 pt-20 md:px-7">
       {/* Barra: volver · título · guardar */}
       <header className="flex shrink-0 items-center justify-between gap-3">
         <button
@@ -98,7 +98,7 @@ export function EventForm({ initial, date, onCancel, onSave, onDelete }: Props) 
       </div>
 
       {/* Cuerpo: reparte el alto, el color se queda con lo que sobra */}
-      <div className="flex min-h-0 w-full flex-1 flex-col gap-5 overflow-y-auto">
+      <div className="scroll-area flex min-h-0 w-full flex-1 flex-col gap-5">
         <motion.div {...bloque(0)} className="flex shrink-0 flex-col gap-2">
           <Etiqueta>Título</Etiqueta>
           <input

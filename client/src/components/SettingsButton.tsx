@@ -31,7 +31,7 @@ export function SettingsButton() {
   };
 
   return (
-    <div {...hoverProps} className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2">
+    <div {...hoverProps} className="isla-bottom fixed right-5 z-40 flex flex-col items-end gap-2">
       <AnimatePresence>
         {open && (
           <motion.div
