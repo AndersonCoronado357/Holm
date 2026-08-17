@@ -72,7 +72,9 @@ const canNotify = () => supported() && Notification.permission === 'granted' && 
 // (con tope de espera) y si no hay, caemos al constructor.
 async function show(title: string, options?: NotificationOptions): Promise<boolean> {
   if (!supported()) return false;
-  const opts: NotificationOptions = { icon: '/holm.svg?v=4', badge: '/holm.svg?v=4', tag: 'holm', ...options };
+  // PNG y no SVG: Android descarta en silencio los avisos cuyo icono no puede
+  // rasterizar.
+  const opts: NotificationOptions = { icon: '/icon-192.png', badge: '/icon-192.png', tag: 'holm', ...options };
   if ('serviceWorker' in navigator) {
     try {
       const reg = await Promise.race([
