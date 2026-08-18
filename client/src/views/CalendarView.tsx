@@ -21,6 +21,7 @@ import {
   weekRangeLabel,
 } from '../lib/calendar';
 import { clearTimers, scheduleToday } from '../lib/notifications';
+import { useSettings } from '../state/settings';
 import { EventForm } from './EventForm';
 import {
   IconCalendar,
@@ -52,6 +53,8 @@ export function CalendarView() {
   const [selected, setSelected] = useState(new Date());
   const [view, setView] = useState<View>('month');
   const [editing, setEditing] = useState<{ event: CalendarEvent | null; date: Date } | null>(null);
+  const { cargado, ajustes } = useSettings();
+  const avisos = ajustes.notifications;
 
   useEffect(() => {
     api.events
@@ -60,11 +63,18 @@ export function CalendarView() {
       .catch(() => {});
   }, []);
 
-  // Reprograma los avisos del navegador cada vez que cambian los eventos.
+  // Reprograma los avisos cada vez que cambian los eventos o la preferencia.
+  // Hasta que los ajustes de la cuenta no lleguen no se programa nada: con los
+  // valores por defecto avisaríamos a destiempo, o no avisaríamos.
   useEffect(() => {
-    scheduleToday(events);
+    if (!cargado) return;
+    scheduleToday(events, {
+      activados: avisos.enabled,
+      minutosAntes: avisos.leadMinutes,
+      reclamar: (id, dia) => api.settings.claimNotified(id, dia).then((r) => r.first),
+    });
     return clearTimers;
-  }, [events]);
+  }, [events, cargado, avisos.enabled, avisos.leadMinutes]);
 
   // Índice por día para no filtrar la lista completa en cada celda.
   const byDay = useMemo(() => {

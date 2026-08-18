@@ -52,10 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // aún no respondió (recién arrancó), reintentamos; un 401 sí pasa a 'anon'.
   useEffect(() => {
     applyTheme('system');
-    // Limpia restos del antiguo esquema en localStorage (ya no se usa).
+    // Restos de esquemas anteriores: sesión y preferencias vivían aquí, ahora
+    // están en la cookie y en la cuenta. Se limpian una vez y no se vuelve.
     try {
-      localStorage.removeItem('holm.token');
-      localStorage.removeItem('holm.user');
+      for (const k of Object.keys(localStorage)) {
+        if (k.startsWith('holm.')) localStorage.removeItem(k);
+      }
     } catch {
       /* ignorar */
     }

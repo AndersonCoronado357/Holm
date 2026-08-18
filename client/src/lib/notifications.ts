@@ -1,12 +1,25 @@
 // Avisos del navegador para los eventos del calendario (client-side, sin push).
 // Modelo tomado del de Hibi:
-//  · MAESTRO = interruptor global (permiso + on/off) → isEnabled/setEnabled.
+//  · MAESTRO = interruptor global (permiso del navegador + on/off de la cuenta).
 //  · Se programa un aviso por cada evento de HOY cuya hora aún no pasó.
-//  · Deduplicación por día: un evento no avisa dos veces aunque recargues.
+//  · Un evento no avisa dos veces, ni aunque recargues ni aunque tengas la app
+//    abierta en dos sitios: el «ya avisado» se reclama al servidor.
+//
+// Este módulo no guarda nada: el interruptor y los minutos de antelación son
+// preferencias de la cuenta y viven en `state/settings`.
 import type { CalendarEvent } from '../api/types';
 
-const ENABLED_KEY = 'holm.notif.on';
-const MINUTES_KEY = 'holm.notif.minutes';
+export interface OpcionesAviso {
+  /** Interruptor de la cuenta. */
+  activados: boolean;
+  /** Minutos de antelación (0 = a la hora exacta). */
+  minutosAntes: number;
+  /**
+   * Reclama el aviso de un evento. Devuelve `true` sólo a quien llega primero,
+   * de modo que el móvil y el escritorio no avisen los dos de lo mismo.
+   */
+  reclamar: (id: string, dia: string) => Promise<boolean>;
+}
 
 function localDay(): string {
   const d = new Date();
@@ -29,43 +42,6 @@ export async function requestPermission(): Promise<NotificationPermission> {
     return 'denied';
   }
 }
-
-export function isEnabled(): boolean {
-  try {
-    return localStorage.getItem(ENABLED_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
-export function setEnabled(on: boolean) {
-  try {
-    localStorage.setItem(ENABLED_KEY, on ? 'true' : 'false');
-  } catch {
-    /* sin almacenamiento: no pasa nada */
-  }
-  if (!on) clearTimers();
-}
-
-// Cuántos minutos antes avisar (0 = a la hora exacta).
-export function leadMinutes(): number {
-  try {
-    const n = Number(localStorage.getItem(MINUTES_KEY));
-    return Number.isFinite(n) && n >= 0 ? n : 10;
-  } catch {
-    return 10;
-  }
-}
-
-export function setLeadMinutes(n: number) {
-  try {
-    localStorage.setItem(MINUTES_KEY, String(Math.max(0, n)));
-  } catch {
-    /* ignore */
-  }
-}
-
-const canNotify = () => supported() && Notification.permission === 'granted' && isEnabled();
 
 // En móvil `new Notification(...)` está prohibido desde la página y hay que ir
 // por el Service Worker; en escritorio funcionan los dos. Probamos primero el SW
@@ -97,28 +73,6 @@ async function show(title: string, options?: NotificationOptions): Promise<boole
   }
 }
 
-const NOTIFIED_KEY = () => 'holm.notified.' + localDay();
-
-function notifiedIds(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(NOTIFIED_KEY()) || '[]') as string[];
-  } catch {
-    return [];
-  }
-}
-
-function markNotified(id: string) {
-  try {
-    const arr = notifiedIds();
-    if (!arr.includes(id)) {
-      arr.push(id);
-      localStorage.setItem(NOTIFIED_KEY(), JSON.stringify(arr));
-    }
-  } catch {
-    /* ignore */
-  }
-}
-
 let timers: ReturnType<typeof setTimeout>[] = [];
 
 export function clearTimers() {
@@ -132,28 +86,37 @@ export function notifyNow(title: string, body?: string): Promise<boolean> {
   return show(title, body ? { body } : undefined);
 }
 
-function fire(e: CalendarEvent) {
-  if (!canNotify() || notifiedIds().includes(e.id)) return;
-  const cuando = e.startTime ? `A las ${e.startTime}` : 'Hoy';
-  show(e.title, { body: cuando }).then((ok) => ok && markNotified(e.id));
+async function fire(e: CalendarEvent, op: OpcionesAviso) {
+  if (!op.activados || permission() !== 'granted') return;
+  // Se reclama ANTES de mostrar: si esperásemos a después, dos pantallas
+  // abiertas mostrarían las dos el aviso antes de que ninguna lo marcara.
+  let primero = true;
+  try {
+    primero = await op.reclamar(e.id, localDay());
+  } catch {
+    // Sin red no se puede saber si otro sitio ya avisó. Preferimos un aviso
+    // repetido a quedarnos callados: el recordatorio es el objetivo.
+    primero = true;
+  }
+  if (!primero) return;
+  await show(e.title, { body: e.startTime ? `A las ${e.startTime}` : 'Hoy' });
 }
 
 // Reprograma los avisos de los eventos de HOY cuya hora aún no llegó.
-export function scheduleToday(events: CalendarEvent[]) {
+export function scheduleToday(events: CalendarEvent[], op: OpcionesAviso) {
   clearTimers();
-  if (!canNotify()) return;
+  if (!op.activados || permission() !== 'granted') return;
   const today = localDay();
   const now = Date.now();
-  const lead = leadMinutes() * 60_000;
+  const lead = op.minutosAntes * 60_000;
   for (const e of events) {
     if (!e || e.eventDate !== today || !e.startTime) continue;
-    if (notifiedIds().includes(e.id)) continue;
     const [h, m] = e.startTime.split(':').map(Number);
     if (Number.isNaN(h)) continue;
     const at = new Date();
     at.setHours(h, m || 0, 0, 0);
     const delay = at.getTime() - lead - now;
     if (delay <= 0) continue; // ya pasó: no molestamos en retrospectiva
-    timers.push(setTimeout(() => fire(e), Math.min(delay, 2_147_483_000)));
+    timers.push(setTimeout(() => fire(e, op), Math.min(delay, 2_147_483_000)));
   }
 }

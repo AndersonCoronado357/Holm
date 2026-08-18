@@ -126,8 +126,20 @@ export interface HabitLog {
 }
 
 export type ThemeMode = 'system' | 'light' | 'dark';
+
+/** Preferencias de la cuenta. Viven en el servidor, no en el navegador. */
 export interface Settings {
   theme: ThemeMode;
+  notifications: { enabled: boolean; leadMinutes: number };
+  /** Última pizarra abierta en cada módulo, por clave de vista. */
+  lastPage: Partial<Record<CanvasView, string>>;
+}
+
+/** Lo que se puede mandar en un guardado parcial (`null` olvida la pizarra). */
+export interface SettingsPatch {
+  theme?: ThemeMode;
+  notifications?: Partial<Settings['notifications']>;
+  lastPage?: Partial<Record<CanvasView, string | null>>;
 }
 
 export interface AuthUser {

@@ -42,6 +42,9 @@ async function ensureIndexes(database: Db): Promise<void> {
     .collection('habitLogs')
     .createIndex({ habitId: 1, date: 1 }, { unique: true });
   await database.collection('habitLogs').createIndex({ userId: 1, date: 1 });
+  // Único: los ajustes son un documento por cuenta, y el reclamo de avisos
+  // depende de que no puedan aparecer dos.
+  await database.collection('settings').createIndex({ userId: 1 }, { unique: true });
 }
 
 export async function closeDb(): Promise<void> {

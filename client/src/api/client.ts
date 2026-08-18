@@ -7,6 +7,7 @@ import type {
   HabitLog,
   Page,
   Settings,
+  SettingsPatch,
   Summary,
 } from './types';
 
@@ -100,8 +101,14 @@ export const api = {
   },
   settings: {
     get: () => req<Settings>('/settings'),
-    set: (patch: Partial<Settings>) =>
-      req<Settings>('/settings', { method: 'PUT', body: JSON.stringify(patch) }),
+    set: (patch: SettingsPatch) =>
+      req<Settings>('/settings', { method: 'PATCH', body: JSON.stringify(patch) }),
+    /** Reclama el aviso de un evento: sólo el primero en pedirlo lo muestra. */
+    claimNotified: (id: string, day: string) =>
+      req<{ first: boolean }>('/settings/notified', {
+        method: 'POST',
+        body: JSON.stringify({ id, day }),
+      }),
   },
   summary: {
     get: (date: string) => req<Summary>(`/summary?date=${date}`),

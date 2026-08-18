@@ -1,32 +1,31 @@
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSettings } from '../state/settings';
 import { useAuth } from '../state/auth';
 import { IslaButton } from './IslaButton';
 import { useIslaOpen } from './useIslaOpen';
-import { isEnabled, notifyNow, requestPermission, setEnabled, supported } from '../lib/notifications';
+import { clearTimers, notifyNow, requestPermission, supported } from '../lib/notifications';
 import { IconSettings, IconSun, IconMoon, IconMonitor, IconUser, IconLogout, IconBell, IconBellOff } from './icons';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const spring = { type: 'spring', stiffness: 320, damping: 30, mass: 0.9 } as const;
 
 export function SettingsButton() {
-  const { theme, setTheme } = useSettings();
+  const { theme, setTheme, ajustes, setAvisos } = useSettings();
   const { user, logout } = useAuth();
   const { open, setOpen, hoverProps } = useIslaOpen();
-  const [notif, setNotif] = useState(() => supported() && isEnabled());
+  const notif = supported() && ajustes.notifications.enabled;
 
-  // Al encender pide permiso al navegador; si lo concede, avisa que quedó listo.
+  // El interruptor es de la cuenta; el permiso es de este navegador. Hacen
+  // falta los dos, así que al encender se pide el permiso primero.
   const toggleNotif = async () => {
     if (notif) {
-      setEnabled(false);
-      setNotif(false);
+      setAvisos({ enabled: false });
+      clearTimers();
       return;
     }
     const perm = Notification.permission === 'granted' ? 'granted' : await requestPermission();
     if (perm !== 'granted') return;
-    setEnabled(true);
-    setNotif(true);
+    setAvisos({ enabled: true });
     notifyNow('Holm', 'Te avisaré de tus eventos del calendario.');
   };
 

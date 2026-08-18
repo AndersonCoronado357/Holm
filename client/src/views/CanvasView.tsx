@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import { Canvas } from '../canvas/Canvas';
 import { PagesBubble } from '../canvas/PagesBubble';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { useSettings } from '../state/settings';
 
 const TITLES: Record<CanvasViewKey, string> = {
   tasks: 'Tareas',
@@ -13,38 +14,23 @@ const TITLES: Record<CanvasViewKey, string> = {
   models: 'Modelos de datos',
 };
 
-// Cada vista recuerda en qué pizarra estabas, para que recargar no te devuelva
-// siempre a la primera.
-const RECORDADA = (view: CanvasViewKey) => `holm.page.${view}`;
-
-function leerRecordada(view: CanvasViewKey): string | null {
-  try {
-    return localStorage.getItem(RECORDADA(view));
-  } catch {
-    return null;
-  }
-}
-
-function guardarRecordada(view: CanvasViewKey, id: string | null) {
-  try {
-    if (id) localStorage.setItem(RECORDADA(view), id);
-    else localStorage.removeItem(RECORDADA(view));
-  } catch {
-    /* sin almacenamiento: no pasa nada */
-  }
-}
-
 export function CanvasViewScreen({ view }: { view: CanvasViewKey }) {
   const [pages, setPages] = useState<Page[]>([]);
   const [activeId, setActiveIdState] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  // En qué pizarra estabas es una preferencia de la cuenta: la guarda el
+  // servidor, así que abrir Holm en otro equipo te deja donde lo dejaste.
+  const { cargado, paginaDe, recordarPagina } = useSettings();
 
   const setActiveId = (id: string | null) => {
     setActiveIdState(id);
-    guardarRecordada(view, id);
+    recordarPagina(view, id);
   };
 
   useEffect(() => {
+    // Sin los ajustes cargados elegiríamos la primera pizarra y acto seguido
+    // saltaríamos a la recordada: se vería el salto.
+    if (!cargado) return;
     let alive = true;
     setReady(false);
     api.pages.list(view).then(async (list) => {
@@ -54,21 +40,24 @@ export function CanvasViewScreen({ view }: { view: CanvasViewKey }) {
         if (!alive) return;
         setPages([first]);
         setActiveIdState(first.id);
-        guardarRecordada(view, first.id);
+        recordarPagina(view, first.id);
       } else {
         setPages(list);
         // La que estabas usando, si todavía existe; si no, la primera.
-        const recordada = leerRecordada(view);
+        const recordada = paginaDe(view);
         const elegida = list.find((p) => p.id === recordada)?.id ?? list[0].id;
         setActiveIdState(elegida);
-        guardarRecordada(view, elegida);
+        recordarPagina(view, elegida);
       }
       setReady(true);
     });
     return () => {
       alive = false;
     };
-  }, [view]);
+    // `paginaDe`/`recordarPagina` cambian en cada render del proveedor; sólo
+    // hay que reelegir cuando cambias de módulo o llegan los ajustes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, cargado]);
 
   const addPage = async () => {
     const p = await api.pages.create(view);
