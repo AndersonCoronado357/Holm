@@ -69,7 +69,7 @@ export function HabitsView() {
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--surface)' }}>
-      <header className="flex shrink-0 items-end justify-between gap-3 px-4 pb-4 pt-20 md:px-10 md:pb-6 md:pt-24">
+      <header className="cab-corta flex shrink-0 items-end justify-between gap-3 px-4 pb-4 pt-20 md:px-10 md:pb-6 md:pt-24">
         <div>
           <p className="text-sm capitalize" style={{ color: 'var(--text-soft)' }}>
             {dateLabel} · hoy

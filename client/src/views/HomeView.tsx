@@ -48,7 +48,7 @@ export function HomeView() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease }}
-        className="shrink-0 px-4 pb-4 pt-20 md:px-10 md:pb-5 md:pt-24"
+        className="cab-corta shrink-0 px-4 pb-4 pt-20 md:px-10 md:pb-5 md:pt-24"
       >
         <p className="text-sm capitalize" style={{ color: 'var(--text-soft)' }}>
           {dateLabel}

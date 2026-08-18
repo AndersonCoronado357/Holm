@@ -136,7 +136,7 @@ export function CalendarView() {
 
   return (
     <div className="absolute inset-0 flex flex-col overflow-hidden" style={{ background: 'var(--surface)' }}>
-      <header className="flex shrink-0 flex-wrap items-end justify-between gap-3 px-4 pb-4 pt-20 md:gap-4 md:px-10 md:pb-5 md:pt-24">
+      <header className="cab-corta flex shrink-0 flex-wrap items-end justify-between gap-3 px-4 pb-4 pt-20 md:gap-4 md:px-10 md:pb-5 md:pt-24">
         <div className="min-w-0">
           <p className="text-[13px] md:text-sm" style={{ color: 'var(--text-soft)' }}>
             {events.length === 0 ? 'Sin eventos todavía' : `${events.length} evento${events.length === 1 ? '' : 's'}`}
@@ -383,7 +383,10 @@ function MonthGrid({
           </div>
         ))}
       </div>
-      <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-7 gap-1 p-3">
+      {/* `auto-rows-fr` reparte el alto disponible, pero en una pantalla baja
+          las seis semanas se aplastaban hasta 12 px. Con un mínimo por fila la
+          rejilla se desborda y se desliza, en vez de volverse ilegible. */}
+      <div className="scroll-area grid min-h-0 flex-1 grid-cols-7 gap-1 p-3" style={{ gridAutoRows: 'minmax(2.75rem, 1fr)' }}>
         {days.map((d) => {
           const items = eventsOn(d);
           const inMonth = sameMonth(d, cursor);

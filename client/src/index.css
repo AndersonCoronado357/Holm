@@ -101,6 +101,19 @@ a,
 .safe-bottom {
   padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
 }
+/* Pantallas bajas (móvil pequeño, o el teclado abierto): la cabecera se comía
+   casi la mitad del alto y no quedaba sitio para el contenido. Se recorta. */
+@media (max-height: 700px) {
+  .cab-corta {
+    padding-top: 4.25rem;
+    padding-bottom: 0.5rem;
+  }
+  .cab-corta h1 {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+  }
+}
+
 /* Islas flotantes: se apartan del notch y de la barra de gestos. */
 .isla-top {
   top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));

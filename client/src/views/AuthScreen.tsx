@@ -497,7 +497,7 @@ function Switcher({ children }: { children: ReactNode }) {
 
 function Link({ onClick, children }: { onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className="font-semibold underline-offset-4 transition hover:underline" style={{ color: 'var(--text)' }}>
+    <button type="button" onClick={onClick} className="inline-flex h-11 items-center px-1 align-middle font-semibold underline-offset-4 transition hover:underline" style={{ color: 'var(--text)' }}>
       {children}
     </button>
   );
@@ -508,7 +508,7 @@ function TextBtn({ onClick, children }: { onClick: () => void; children: ReactNo
     <button
       type="button"
       onClick={onClick}
-      className="text-sm underline-offset-4 transition-colors hover:text-[var(--text)] hover:underline"
+      className="inline-flex h-11 items-center px-2 text-sm underline-offset-4 transition-colors hover:text-[var(--text)] hover:underline"
       style={{ color: 'var(--text-soft)' }}
     >
       {children}
@@ -559,7 +559,7 @@ function Field({
             tabIndex={-1}
             whileTap={{ scale: 0.82 }}
             title={show ? 'Ocultar' : 'Mostrar'}
-            className="absolute right-2.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center overflow-hidden rounded-lg transition-colors hover:text-[var(--text)]"
+            className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center overflow-hidden rounded-lg transition-colors hover:text-[var(--text)]"
             style={{ color: 'var(--text-soft)' }}
           >
             <AnimatePresence mode="wait" initial={false}>
