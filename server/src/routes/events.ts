@@ -72,12 +72,16 @@ router.patch(
     if ('endTime' in b) patch.endTime = normTime(b.endTime);
     if (typeof b.color === 'string' && b.color) patch.color = b.color;
 
+    // Si se mueve la fecha o la hora, el aviso vuelve a estar pendiente: sin
+    // esto, adelantar un evento ya avisado no volvería a sonar nunca.
+    const movido = 'eventDate' in patch || 'startTime' in patch;
+
     const db = getDb();
     const r = await db
       .collection('events')
       .findOneAndUpdate(
         { _id: oid(id), userId: req.userId },
-        { $set: patch },
+        { $set: patch, ...(movido ? { $unset: { pushedAt: '' } } : {}) },
         { returnDocument: 'after' },
       );
     if (!r) {

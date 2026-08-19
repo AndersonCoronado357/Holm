@@ -16,6 +16,8 @@ import habitLogs from './routes/habitLogs.js';
 import events from './routes/events.js';
 import settings from './routes/settings.js';
 import summary from './routes/summary.js';
+import push from './routes/push.js';
+import { startScheduler } from './push.js';
 
 // Puerto propio: NO usamos process.env.PORT/SERVER_PORT porque Spinup los
 // inyecta con el puerto del cliente y chocarian con Vite.
@@ -41,6 +43,9 @@ async function main() {
   app.use('/auth', oauth);
 
   app.use('/api/auth', auth);
+  // Push: la clave pública y el disparo por secreto son abiertos; el resto
+  // exige sesión (lo aplica el propio router).
+  app.use('/api/push', push);
 
   // De aquí en adelante, todo exige sesión.
   app.use('/api/pages', authRequired, pages);
@@ -69,6 +74,7 @@ async function main() {
 
   app.listen(PORT, HOST, () => {
     console.log(`Holm API escuchando en http://${HOST}:${PORT}`);
+    startScheduler();
   });
 }
 
@@ -76,3 +82,4 @@ main().catch((err) => {
   console.error('No se pudo arrancar el servidor:', err.message);
   process.exit(1);
 });
+

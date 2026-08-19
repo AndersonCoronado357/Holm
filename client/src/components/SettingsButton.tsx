@@ -4,6 +4,8 @@ import { useAuth } from '../state/auth';
 import { IslaButton } from './IslaButton';
 import { useIslaOpen } from './useIslaOpen';
 import { clearTimers, notifyNow, requestPermission, supported } from '../lib/notifications';
+import { subscribePush, unsubscribePush } from '../lib/push';
+import { api } from '../api/client';
 import { IconSettings, IconSun, IconMoon, IconMonitor, IconUser, IconLogout, IconBell, IconBellOff } from './icons';
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -15,18 +17,28 @@ export function SettingsButton() {
   const { open, setOpen, hoverProps } = useIslaOpen();
   const notif = supported() && ajustes.notifications.enabled;
 
-  // El interruptor es de la cuenta; el permiso es de este navegador. Hacen
-  // falta los dos, así que al encender se pide el permiso primero.
+  // El interruptor es de la cuenta; el permiso y la suscripción son de este
+  // navegador. Al encender: permiso → suscripción push → aviso de prueba.
   const toggleNotif = async () => {
     if (notif) {
       setAvisos({ enabled: false });
       clearTimers();
+      await unsubscribePush();
       return;
     }
     const perm = Notification.permission === 'granted' ? 'granted' : await requestPermission();
     if (perm !== 'granted') return;
     setAvisos({ enabled: true });
-    notifyNow('Holm', 'Te avisaré de tus eventos del calendario.');
+    // Se suscribe ANTES de la prueba: si hay push, el de prueba sale del
+    // servidor y de paso confirma que el camino entero funciona.
+    const r = await subscribePush();
+    if (r.ok) {
+      const enviado = await api.push.test().then(() => true).catch(() => false);
+      if (enviado) return;
+    }
+    // Sin push (navegador sin soporte, o servidor sin claves): queda el aviso
+    // local, que sólo funciona con Holm abierto.
+    notifyNow('Holm', 'Te avisaré de tus eventos mientras tengas Holm abierto.');
   };
 
   return (

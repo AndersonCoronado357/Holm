@@ -21,6 +21,7 @@ import {
   weekRangeLabel,
 } from '../lib/calendar';
 import { clearTimers, scheduleToday } from '../lib/notifications';
+import { tienePush } from '../lib/push';
 import { useSettings } from '../state/settings';
 import { EventForm } from './EventForm';
 import {
@@ -63,17 +64,28 @@ export function CalendarView() {
       .catch(() => {});
   }, []);
 
-  // Reprograma los avisos cada vez que cambian los eventos o la preferencia.
-  // Hasta que los ajustes de la cuenta no lleguen no se programa nada: con los
-  // valores por defecto avisaríamos a destiempo, o no avisaríamos.
+  // Avisos. Hasta que los ajustes de la cuenta no lleguen no se programa nada:
+  // con los valores por defecto avisaríamos a destiempo, o no avisaríamos.
+  //
+  // Si este dispositivo tiene push real, los manda el SERVIDOR y aquí no se
+  // programa nada: si no, el aviso llegaría dos veces (el push con la app
+  // cerrada y el temporizador al volver a abrirla). Los temporizadores quedan
+  // como respaldo para navegadores sin push.
   useEffect(() => {
     if (!cargado) return;
-    scheduleToday(events, {
-      activados: avisos.enabled,
-      minutosAntes: avisos.leadMinutes,
-      reclamar: (id, dia) => api.settings.claimNotified(id, dia).then((r) => r.first),
+    let vivo = true;
+    tienePush().then((push) => {
+      if (!vivo || push) return;
+      scheduleToday(events, {
+        activados: avisos.enabled,
+        minutosAntes: avisos.leadMinutes,
+        reclamar: (id, dia) => api.settings.claimNotified(id, dia).then((r) => r.first),
+      });
     });
-    return clearTimers;
+    return () => {
+      vivo = false;
+      clearTimers();
+    };
   }, [events, cargado, avisos.enabled, avisos.leadMinutes]);
 
   // Índice por día para no filtrar la lista completa en cada celda.

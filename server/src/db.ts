@@ -45,6 +45,11 @@ async function ensureIndexes(database: Db): Promise<void> {
   // Único: los ajustes son un documento por cuenta, y el reclamo de avisos
   // depende de que no puedan aparecer dos.
   await database.collection('settings').createIndex({ userId: 1 }, { unique: true });
+  // Suscripciones push: el endpoint identifica al navegador y es la clave.
+  await database.collection('pushSubscriptions').createIndex({ endpoint: 1 }, { unique: true });
+  await database.collection('pushSubscriptions').createIndex({ userId: 1 });
+  // El programador busca los eventos de hoy que aún no se han avisado.
+  await database.collection('events').createIndex({ eventDate: 1, pushedAt: 1 });
 }
 
 export async function closeDb(): Promise<void> {

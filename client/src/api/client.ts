@@ -110,6 +110,15 @@ export const api = {
         body: JSON.stringify({ id, day }),
       }),
   },
+  push: {
+    vapidKey: () => req<{ publicKey: string; enabled: boolean }>('/push/vapid-key'),
+    subscribe: (endpoint: string, keys: { p256dh: string; auth: string }) =>
+      req<{ ok: boolean }>('/push/subscribe', { method: 'POST', body: JSON.stringify({ endpoint, keys }) }),
+    unsubscribe: (endpoint: string) =>
+      req<{ ok: boolean }>('/push/unsubscribe', { method: 'POST', body: JSON.stringify({ endpoint }) }),
+    /** Push de prueba real: sale del servidor, no de esta pestaña. */
+    test: () => req<{ sent: number; failed: number }>('/push/test', { method: 'POST' }),
+  },
   summary: {
     get: (date: string) => req<Summary>(`/summary?date=${date}`),
   },

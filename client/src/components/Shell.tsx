@@ -7,6 +7,8 @@ import { HomeView } from '../views/HomeView';
 import { CanvasViewScreen } from '../views/CanvasView';
 import { HabitsView } from '../views/HabitsView';
 import { CalendarView } from '../views/CalendarView';
+import { useSettings } from '../state/settings';
+import { subscribePush } from '../lib/push';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -29,12 +31,23 @@ function pathToView(path: string): ViewKey {
 
 export function Shell() {
   const [view, setViewState] = useState<ViewKey>(() => pathToView(window.location.pathname));
+  const { cargado, ajustes } = useSettings();
 
   useEffect(() => {
     const onPop = () => setViewState(pathToView(window.location.pathname));
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
+
+  // Este dispositivo se suscribe solo si la cuenta tiene los avisos activos y
+  // el navegador ya dio permiso. Cubre dos casos: entrar por primera vez desde
+  // un equipo nuevo, y las cuentas que activaron los avisos cuando todavía no
+  // había push. `subscribePush` es idempotente, así que repetirlo no molesta.
+  useEffect(() => {
+    if (!cargado || !ajustes.notifications.enabled) return;
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    subscribePush();
+  }, [cargado, ajustes.notifications.enabled]);
 
   const setView = (v: ViewKey) => {
     if (window.location.pathname !== VIEW_TO_PATH[v]) {
